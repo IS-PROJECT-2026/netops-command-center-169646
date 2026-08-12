@@ -124,14 +124,50 @@
           </div>
         </section>
 
-        <!-- Section: Devices (Placeholder for Milestone 2) -->
+        <!-- Section: Devices -->
         <section id="section-devices" class="page-section hidden" aria-labelledby="heading-devices">
-          <div class="placeholder-view">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
-            </svg>
-            <h3>Device Inventory View</h3>
-            <p>Device management and telemetry details will be loaded here.</p>
+          <div class="inventory-container">
+            
+            <!-- Controls Header: Search & Filter -->
+            <div class="inventory-controls">
+              <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="device-search" class="form-input search-input" placeholder="Search by Hostname or IP address..." aria-label="Search devices by hostname or IP">
+              </div>
+
+              <div class="filter-box">
+                <label for="device-status-filter" class="filter-label">Status Filter:</label>
+                <select id="device-status-filter" class="form-select status-select" aria-label="Filter devices by status">
+                  <option value="all">All Statuses</option>
+                  <option value="online">Online</option>
+                  <option value="warning">Warning</option>
+                  <option value="offline">Offline</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Device Data Table -->
+            <div class="table-card">
+              <div class="table-responsive">
+                <table class="inventory-table" aria-label="Network Devices Table">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="col-hostname">Hostname</th>
+                      <th scope="col" class="col-type">Type</th>
+                      <th scope="col" class="col-ip">IP Address</th>
+                      <th scope="col" class="col-status">Status</th>
+                      <th scope="col" class="col-uptime">Uptime</th>
+                    </tr>
+                  </thead>
+                  <tbody id="device-tbody">
+                    <!-- Dynamic rows injected by js/inventory.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         </section>
 
@@ -172,8 +208,76 @@
     </div>
   </div>
 
+  <!-- Backdrop Overlay for Detail Panel -->
+  <div id="panel-overlay" class="panel-overlay" aria-hidden="true"></div>
+
+  <!-- Hidden Slide-Out Device Details Aside Panel -->
+  <aside id="device-detail-panel" class="detail-slideout-panel" aria-label="Device Details Panel" aria-hidden="true">
+    <div class="panel-header">
+      <div class="panel-title-group">
+        <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
+        </svg>
+        <h3 class="panel-title">Device Telemetry</h3>
+      </div>
+      <button type="button" id="close-detail-panel" class="panel-close-btn" aria-label="Close details panel">&times;</button>
+    </div>
+
+    <div class="panel-body">
+      <div class="device-summary-card">
+        <h4 id="detail-hostname" class="detail-main-title">--</h4>
+        <span id="detail-id" class="detail-sub-id">--</span>
+        <div class="detail-badge-wrapper">
+          <span id="detail-status" class="status-badge status-healthy">--</span>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Device Type</span>
+          <span id="detail-type" class="detail-value">--</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">IP Address</span>
+          <code id="detail-ip" class="detail-value detail-code">--</code>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Region / DC</span>
+          <span id="detail-region" class="detail-value">--</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Latency</span>
+          <span id="detail-latency" class="detail-value">--</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">System Uptime</span>
+          <span id="detail-uptime" class="detail-value">--</span>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h5 class="section-subtitle">Quick Diagnostic Actions</h5>
+        <div class="action-buttons">
+          <button type="button" class="btn btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Ping Device
+          </button>
+          <button type="button" class="btn btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />
+            </svg>
+            Traceroute
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
   <!-- Shared State and App Scripts -->
   <script src="js/state.js"></script>
+  <script src="js/inventory.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
