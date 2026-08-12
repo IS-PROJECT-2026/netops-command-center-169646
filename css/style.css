@@ -1011,3 +1011,413 @@ html, body {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+/* ==========================================
+   Dashboard High-Level Metric Summary Cards
+   ========================================== */
+
+.metrics-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.metric-summary-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.metric-summary-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.metric-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-cyan {
+  background: rgba(0, 242, 254, 0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+}
+
+.icon-healthy {
+  background: var(--status-healthy-glow);
+  color: var(--status-healthy);
+  border: 1px solid var(--status-healthy);
+}
+
+.icon-blue {
+  background: rgba(79, 70, 229, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+}
+
+.icon-warning {
+  background: var(--status-warning-glow);
+  color: var(--status-warning);
+  border: 1px solid var(--status-warning);
+}
+
+.metric-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-title {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.metric-big-val {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+/* ==========================================
+   Simulated Event Stream Ticker Bar
+   ========================================== */
+
+.event-ticker-bar {
+  background-color: var(--bg-darkest);
+  border-bottom: 1px solid var(--border-color);
+  height: 38px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  font-size: 0.8rem;
+}
+
+.ticker-badge {
+  background: rgba(0, 242, 254, 0.1);
+  color: var(--accent-cyan);
+  border-right: 1px solid var(--border-color);
+  padding: 0 var(--spacing-md);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.ticker-wrapper {
+  flex-grow: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+}
+
+.ticker-track {
+  display: inline-flex;
+  gap: 2rem;
+  animation: scrollTicker 35s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scrollTicker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ticker-time {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.ticker-device {
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.ticker-msg {
+  color: var(--text-primary);
+}
+
+.ticker-tag {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================
+   Network Topology Map Styling
+   ========================================== */
+
+.topology-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  height: calc(100vh - 180px);
+}
+
+.topology-toolbar {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-card);
+}
+
+.toolbar-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-primary);
+}
+
+.toolbar-title-group svg {
+  color: var(--accent-cyan);
+}
+
+.topology-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.topology-map-container {
+  position: relative;
+  flex-grow: 1;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.topology-svg-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.topology-link {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.15);
+  stroke-width: 2px;
+  stroke-dasharray: 4, 4;
+  animation: dashAnimation 20s linear infinite;
+  transition: all var(--transition-fast);
+}
+
+.topology-link.link-status-healthy {
+  stroke: rgba(16, 185, 129, 0.4);
+}
+
+.topology-link.link-status-warning {
+  stroke: rgba(245, 158, 11, 0.6);
+  stroke-width: 2.5px;
+}
+
+.topology-link.link-status-critical {
+  stroke: rgba(239, 68, 68, 0.8);
+  stroke-width: 3px;
+  stroke-dasharray: 6, 3;
+}
+
+.topology-link.highlighted {
+  stroke: var(--accent-cyan) !important;
+  stroke-width: 3.5px !important;
+  filter: drop-shadow(0 0 6px var(--accent-cyan));
+  z-index: 10;
+}
+
+.topology-link.dimmed {
+  opacity: 0.15;
+}
+
+@keyframes dashAnimation {
+  to { stroke-dashoffset: -100; }
+}
+
+.topology-nodes-container {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: var(--spacing-lg);
+}
+
+.topology-tier {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tier-header {
+  display: flex;
+}
+
+.tier-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.tier-nodes-group {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.topology-node {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.6rem var(--spacing-md);
+  min-width: 170px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.topology-node:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+}
+
+.topology-node.status-healthy {
+  border-left: 4px solid var(--status-healthy);
+}
+
+.topology-node.status-warning {
+  border-left: 4px solid var(--status-warning);
+}
+
+.topology-node.status-critical {
+  border-left: 4px solid var(--status-critical);
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.node-id {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.node-body {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.node-type-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--accent-cyan);
+  flex-shrink: 0;
+}
+
+.node-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.node-hostname {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-ip {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.node-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.2rem;
+  padding-top: 0.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.node-type-badge {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.node-latency {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent-cyan);
+}
+
+
