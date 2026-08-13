@@ -263,25 +263,192 @@
           </div>
         </section>
 
-        <!-- Section: Incidents (Placeholder for Milestone 4) -->
+        <!-- Section: Incidents -->
         <section id="section-incidents" class="page-section hidden" aria-labelledby="heading-incidents">
-          <div class="placeholder-view">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <h3>Incident Management Console</h3>
-            <p>Detailed incident tracking and triage tools will be loaded here.</p>
+          <div class="incidents-wrapper">
+            
+            <!-- Incidents Summary Counters & Filters Header -->
+            <div class="incidents-header-card">
+              <div class="incidents-summary-counters">
+                <div class="counter-item">
+                  <span class="counter-label">Total Incidents</span>
+                  <span id="count-incidents-total" class="counter-val">0</span>
+                </div>
+                <div class="counter-item border-detected">
+                  <span class="counter-label">Detected</span>
+                  <span id="count-incidents-detected" class="counter-val text-detected">0</span>
+                </div>
+                <div class="counter-item border-investigating">
+                  <span class="counter-label">Investigating</span>
+                  <span id="count-incidents-investigating" class="counter-val text-investigating">0</span>
+                </div>
+                <div class="counter-item border-mitigated">
+                  <span class="counter-label">Mitigated</span>
+                  <span id="count-incidents-mitigated" class="counter-val text-mitigated">0</span>
+                </div>
+                <div class="counter-item border-resolved">
+                  <span class="counter-label">Resolved</span>
+                  <span id="count-incidents-resolved" class="counter-val text-resolved">0</span>
+                </div>
+              </div>
+
+              <div class="incidents-controls">
+                <div class="search-box">
+                  <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input type="text" id="incident-search" class="form-input search-input" placeholder="Search by ID, Title, Device..." aria-label="Search incidents">
+                </div>
+
+                <div class="filter-group">
+                  <select id="incident-status-filter" class="form-select" aria-label="Filter by Status">
+                    <option value="all">All Statuses</option>
+                    <option value="Detected">Detected</option>
+                    <option value="Investigating">Investigating</option>
+                    <option value="Mitigated">Mitigated</option>
+                    <option value="Resolved">Resolved</option>
+                  </select>
+
+                  <select id="incident-severity-filter" class="form-select" aria-label="Filter by Severity">
+                    <option value="all">All Severities</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+
+                  <button type="button" id="btn-create-incident" class="btn btn-accent">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    + Report Incident
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Incidents UI Panel -->
+            <div id="incidents-container" class="incidents-grid-panel" aria-label="Active Incidents List">
+              <!-- Rendered dynamically by js/incidents.js -->
+            </div>
+
           </div>
         </section>
 
-        <!-- Section: Diagnostics (Placeholder for Milestone 5) -->
+        <!-- Section: Diagnostics -->
         <section id="section-diagnostics" class="page-section hidden" aria-labelledby="heading-diagnostics">
-          <div class="placeholder-view">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <h3>Diagnostics & Ping / Traceroute Simulator</h3>
-            <p>Interactive execution tools will be loaded here.</p>
+          <div class="diagnostics-wrapper">
+            
+            <!-- Diagnostics Target Selection -->
+            <div class="diagnostics-target-card">
+              <div class="target-select-group">
+                <label for="diag-target-select" class="control-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2" />
+                  </svg>
+                  Target Device / Interface:
+                </label>
+                <select id="diag-target-select" class="form-select diag-select" aria-label="Select Target Device">
+                  <!-- Dynamic options injected by js/diagnostics.js -->
+                </select>
+                <input type="text" id="diag-custom-target" class="form-input diag-custom-input hidden" placeholder="e.g. 192.168.1.1" aria-label="Custom Target IP">
+              </div>
+            </div>
+
+            <!-- Diagnostics Toolbox UI Section -->
+            <div class="toolbox-card">
+              <div class="toolbox-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <h3>Diagnostics Toolbox</h3>
+              </div>
+              
+              <div class="toolbox-buttons-grid" role="group" aria-label="Diagnostic Tools">
+                <button type="button" class="btn btn-diag-tool" data-tool="Ping">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span>ICMP Ping</span>
+                </button>
+
+                <button type="button" class="btn btn-diag-tool" data-tool="Traceroute">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.818V8.052a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                  <span>Traceroute</span>
+                </button>
+
+                <button type="button" class="btn btn-diag-tool" data-tool="DNS Lookup">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                  <span>DNS Lookup</span>
+                </button>
+
+                <button type="button" class="btn btn-diag-tool" data-tool="Port Scan">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>Port Scanner</span>
+                </button>
+
+                <button type="button" class="btn btn-diag-tool" data-tool="BGP Check">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>BGP Route Check</span>
+                </button>
+
+                <button type="button" class="btn btn-diag-tool" data-tool="Bandwidth Test">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                  <span>Bandwidth Test</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Terminal Output Console -->
+            <div class="terminal-card">
+              <div class="terminal-header">
+                <div class="terminal-dots">
+                  <span class="dot dot-red"></span>
+                  <span class="dot dot-yellow"></span>
+                  <span class="dot dot-green"></span>
+                </div>
+                <div class="terminal-title">
+                  <span id="diag-active-tool">Ping</span> &mdash; Target: <span id="diag-active-target">core-router-01.dc1</span>
+                </div>
+                <div id="diag-status-badge" class="status-badge status-badge-resolved">READY</div>
+              </div>
+              <div class="terminal-body">
+                <pre id="diag-console-output" class="terminal-output">Ready to execute network diagnostics. Select a target device and click a tool above.</pre>
+              </div>
+            </div>
+
+            <!-- Diagnostics Execution History -->
+            <div class="diag-history-card">
+              <h4 class="history-title">Recent Execution Logs</h4>
+              <div class="table-responsive">
+                <table class="inventory-table diag-history-table">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Tool</th>
+                      <th>Target</th>
+                      <th>Status</th>
+                      <th>Avg Latency</th>
+                      <th>Packet Loss</th>
+                    </tr>
+                  </thead>
+                  <tbody id="diag-history-tbody">
+                    <!-- Dynamic history rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         </section>
 
@@ -361,6 +528,8 @@
   <script src="js/dashboard.js"></script>
   <script src="js/inventory.js"></script>
   <script src="js/topology.js"></script>
+  <script src="js/incidents.js"></script>
+  <script src="js/diagnostics.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
