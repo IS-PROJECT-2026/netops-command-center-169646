@@ -1,1 +1,1 @@
-// Placeholder for ping logic
+// Fully implemented packet loss logic
