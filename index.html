@@ -97,10 +97,6 @@
             <span id="theme-toggle-icon" class="theme-toggle-icon">🌙</span>
           </button>
           <div id="utc-clock" class="clock-display" aria-label="Current UTC Time" tabindex="0">--:--:-- UTC</div>
-          <div class="user-profile" aria-label="User Profile NetOps Admin" tabindex="0">
-            <div class="user-avatar" aria-hidden="true">OP</div>
-            <span>NetOps Admin</span>
-          </div>
         </div>
       </header>
 
@@ -347,6 +343,22 @@
               <!-- Rendered dynamically by js/incidents.js -->
             </div>
 
+            <!-- Investigation History Log UI Panel -->
+            <div class="investigation-history-card" aria-label="Investigation History Log">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h3>Investigation History Log</h3>
+                </div>
+                <span class="count-badge badge-info">Resolved Archive</span>
+              </div>
+              <ul id="investigation-history-list" class="history-list-wrapper">
+                <!-- Rendered dynamically by js/history.js -->
+              </ul>
+            </div>
+
           </div>
         </section>
 
@@ -441,6 +453,11 @@
               <div class="terminal-body">
                 <pre id="diag-console-output" class="terminal-output">Ready to execute network diagnostics. Select a target device and click a tool above.</pre>
               </div>
+            </div>
+
+            <!-- Root Cause Analysis (RCA) & Confidence Score Section -->
+            <div id="rca-score-section">
+              <!-- Rendered dynamically by js/rca.js -->
             </div>
 
             <!-- Diagnostics Execution History -->
@@ -613,6 +630,8 @@
   <script src="js/topology.js"></script>
   <script src="js/incidents.js"></script>
   <script src="js/diagnostics.js"></script>
+  <script src="js/rca.js"></script>
+  <script src="js/history.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
