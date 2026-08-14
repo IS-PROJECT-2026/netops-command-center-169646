@@ -86,6 +86,9 @@
           <h2 id="current-view-title" class="current-view-title">Dashboard Overview</h2>
         </div>
         <div class="header-right">
+          <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle Light/Dark Theme">
+            <span id="theme-toggle-icon" class="theme-toggle-icon">🌙</span>
+          </button>
           <div id="utc-clock" class="clock-display" aria-label="Current UTC Time">--:--:-- UTC</div>
           <div class="user-profile" aria-label="User Info">
             <div class="user-avatar" aria-hidden="true">OP</div>
@@ -316,6 +319,12 @@
                     <option value="Low">Low</option>
                   </select>
 
+                  <button type="button" id="btn-generate-report" class="btn btn-secondary btn-generate-report">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Generate Report
+                  </button>
                   <button type="button" id="btn-create-incident" class="btn btn-accent">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -523,8 +532,51 @@
     </div>
   </aside>
 
+  <!-- Incident Report Summary Modal -->
+  <div id="report-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="report-modal-title">
+    <div class="modal-card report-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22" class="modal-title-icon" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 id="report-modal-title" class="modal-title">Incident Telemetry & Post-Mortem Report</h3>
+        </div>
+        <button type="button" id="close-report-modal" class="modal-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="report-modal-content" class="report-modal-content">
+          <!-- Dynamic report content injected by js/reports.js -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn-copy-report" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          Copy Text
+        </button>
+        <button type="button" id="btn-download-txt-report" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download TXT
+        </button>
+        <button type="button" id="btn-download-html-report" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download HTML
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Shared State and App Scripts -->
   <script src="js/state.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/reports.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/inventory.js"></script>
   <script src="js/topology.js"></script>
