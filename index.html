@@ -86,11 +86,18 @@
           <h2 id="current-view-title" class="current-view-title">Dashboard Overview</h2>
         </div>
         <div class="header-right">
-          <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle Light/Dark Theme">
+          <button type="button" id="cmd-palette-trigger" class="cmd-palette-trigger-btn" aria-label="Open Command Palette (Ctrl+K)" title="Open Command Palette (Ctrl+K)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span class="cmd-trigger-text">Commands</span>
+            <kbd class="header-shortcut">Ctrl+K</kbd>
+          </button>
+          <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle light and dark theme" title="Toggle Light/Dark Theme">
             <span id="theme-toggle-icon" class="theme-toggle-icon">🌙</span>
           </button>
-          <div id="utc-clock" class="clock-display" aria-label="Current UTC Time">--:--:-- UTC</div>
-          <div class="user-profile" aria-label="User Info">
+          <div id="utc-clock" class="clock-display" aria-label="Current UTC Time" tabindex="0">--:--:-- UTC</div>
+          <div class="user-profile" aria-label="User Profile NetOps Admin" tabindex="0">
             <div class="user-avatar" aria-hidden="true">OP</div>
             <span>NetOps Admin</span>
           </div>
@@ -572,11 +579,35 @@
     </div>
   </div>
 
+  <!-- Command Palette Modal Overlay -->
+  <div id="command-palette-modal" class="modal-overlay palette-overlay hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="palette-search-input">
+    <div class="modal-card palette-card">
+      <div class="palette-header">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input type="text" id="palette-search-input" class="palette-input" placeholder="Type a command or search... (e.g. 'theme', 'devices', 'ping')" aria-label="Command Palette Search Input" autocomplete="off" spellcheck="false">
+        <kbd class="palette-kbd-hint">ESC</kbd>
+      </div>
+      <div class="palette-body">
+        <ul id="palette-results-list" class="palette-results-list" role="listbox" aria-label="Command Palette Results">
+          <!-- Dynamic command items rendered by js/palette.js -->
+        </ul>
+      </div>
+      <div class="palette-footer">
+        <span><kbd>&uarr;</kbd> <kbd>&darr;</kbd> Navigate</span>
+        <span><kbd>&crarr;</kbd> Select</span>
+        <span><kbd>ESC</kbd> Close</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Shared State and App Scripts -->
   <script src="js/state.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/reports.js"></script>
+  <script src="js/palette.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/inventory.js"></script>
   <script src="js/topology.js"></script>
