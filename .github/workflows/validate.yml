@@ -1,0 +1,20 @@
+name: CI Validation
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Verify Project Structure
+      run: |
+        echo "Validating core application files..."
+        test -f index.html || (echo "❌ Missing index.html" && exit 1)
+        test -d css || (echo "❌ Missing css directory" && exit 1)
+        test -d js || (echo "❌ Missing js directory" && exit 1)
+        echo "✅ All static assets validated successfully!"
