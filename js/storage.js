@@ -39,6 +39,28 @@
   }
 
   /**
+   * Normalize an incident object to guarantee all expected fields are present
+   */
+  function normalizeIncident(inc) {
+    if (!inc) return null;
+    const devices = inc.affectedDevices || inc.affected_devices || ["core-router-01.dc1"];
+    const devicesArr = Array.isArray(devices) ? devices : [devices];
+    const timeStr = inc.startTime || inc.timestamp || "2026-08-16 20:00:00";
+
+    return {
+      id: inc.id || `INC-${Math.floor(9000 + Math.random() * 1000)}`,
+      title: inc.title || "Network Incident",
+      severity: inc.severity || "Medium",
+      status: inc.status || "Detected",
+      affectedDevices: devicesArr,
+      affected_devices: devicesArr,
+      startTime: timeStr,
+      timestamp: timeStr,
+      description: inc.description || "Active incident registered in NOC telemetry logs."
+    };
+  }
+
+  /**
    * Storage Wrapper API
    */
   const NetOpsStorage = {
@@ -53,11 +75,16 @@
 
     saveIncidents(incidents) {
       if (!Array.isArray(incidents)) return false;
-      return safeJSONSave(STORAGE_KEYS.INCIDENTS, incidents);
+      const normalized = incidents.map(normalizeIncident).filter(Boolean);
+      return safeJSONSave(STORAGE_KEYS.INCIDENTS, normalized);
     },
 
     loadIncidents() {
-      return safeJSONParse(STORAGE_KEYS.INCIDENTS, null);
+      const loaded = safeJSONParse(STORAGE_KEYS.INCIDENTS, null);
+      if (Array.isArray(loaded)) {
+        return loaded.map(normalizeIncident).filter(Boolean);
+      }
+      return null;
     },
 
     saveHistory(history) {
@@ -107,7 +134,6 @@
           window.NetOpsState.data.devices = savedDevices;
         }
       } else if (window.NetOpsState && window.NetOpsState.data && window.NetOpsState.data.devices) {
-        // Save initial devices default if empty in localStorage
         this.saveDevices(window.NetOpsState.data.devices);
       }
 
@@ -122,7 +148,6 @@
           window.NetOpsIncidents.data.push(...savedIncidents);
         }
       } else {
-        // Save initial incidents default if empty in localStorage
         const initialInc = (window.NetOpsIncidents && window.NetOpsIncidents.data) ||
                            (window.NetOpsState && window.NetOpsState.data && window.NetOpsState.data.incidents);
         if (initialInc) {
@@ -138,7 +163,6 @@
      * Attach persistence hooks to state modification functions
      */
     attachSaveHooks() {
-      // Hook into NetOpsIncidents if present
       if (window.NetOpsIncidents) {
         const origAdd = window.NetOpsIncidents.addIncident;
         const origUpdate = window.NetOpsIncidents.updateStatus;
@@ -172,7 +196,6 @@
         }
       }
 
-      // Hook diagnostic execution logs
       if (window.runDiagnostic && !window.runDiagnostic._isHooked) {
         const origRunDiag = window.runDiagnostic;
         window.runDiagnostic = async function (...args) {
@@ -199,20 +222,22 @@
     const savedHistory = NetOpsStorage.loadHistory();
     const tbody = document.getElementById('diag-history-tbody');
     if (tbody && savedHistory.length > 0 && tbody.children.length === 0) {
-      tbody.innerHTML = savedHistory.slice(0, 10).map(result => `
-        <tr class="${result.success ? 'row-success' : 'row-failure'}">
-          <td><code class="code-tag">${(result.timestamp || '').split(' ')[1] || result.timestamp}</code></td>
-          <td><strong>${result.toolName}</strong></td>
-          <td><code>${result.targetDevice}</code></td>
-          <td><span class="status-badge ${result.success ? 'status-badge-resolved' : 'status-badge-detected'}">${result.status}</span></td>
-          <td>${result.latency}</td>
-          <td>${result.packetLoss}</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = savedHistory.slice(0, 10).map(result => {
+        const timePart = (result.timestamp || '').includes(' ') ? result.timestamp.split(' ')[1] : result.timestamp;
+        return `
+          <tr class="${result.success ? 'row-success' : 'row-failure'}">
+            <td><code class="code-tag">${timePart || 'N/A'}</code></td>
+            <td><strong>${result.toolName || 'Tool'}</strong></td>
+            <td><code>${result.targetDevice || 'Target'}</code></td>
+            <td><span class="status-badge ${result.success ? 'status-badge-resolved' : 'status-badge-detected'}">${result.status}</span></td>
+            <td>${result.latency}</td>
+            <td>${result.packetLoss}</td>
+          </tr>
+        `;
+      }).join('');
     }
   });
 
-  // Save before unload
   window.addEventListener('beforeunload', () => {
     NetOpsStorage.saveAllState();
   });

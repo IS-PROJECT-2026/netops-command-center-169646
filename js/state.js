@@ -10,12 +10,12 @@
     metrics: {
       uptime: "99.94%",
       packetLoss: "0.02%",
-      activeAlerts: 7,
-      totalDevices: 156,
-      healthyDevices: 144,
-      warningDevices: 9,
-      criticalDevices: 3,
-      avgLatency: "14.2 ms",
+      activeAlerts: 5,
+      totalDevices: 10,
+      healthyDevices: 6,
+      warningDevices: 2,
+      criticalDevices: 2,
+      avgLatency: "60.6 ms",
       bandwidthUsage: "64.8 Gbps"
     },
     devices: [
@@ -32,49 +32,59 @@
     ],
     incidents: [
       {
-        id: "INC-8921",
-        title: "High Packet Loss on EU Transatlantic Trunk",
-        severity: "critical",
-        status: "investigating",
-        affectedDevices: ["edge-router-01.eu1", "core-router-02.dc1"],
-        startTime: "2026-08-11 20:15:00",
-        description: "BGP route flapping detected on Frankfurt edge router leading to 18% packet drop."
+        id: "INC-9001",
+        title: "Core Router Transit Flap - US East",
+        severity: "High",
+        status: "Detected",
+        affectedDevices: ["core-router-01.dc1", "edge-router-01.eu1"],
+        affected_devices: ["core-router-01.dc1", "edge-router-01.eu1"],
+        startTime: "2026-08-16 20:15:00",
+        timestamp: "2026-08-16 20:15:00",
+        description: "BGP path oscillation causing 15% latency increase across transatlantic circuit."
       },
       {
-        id: "INC-8920",
-        title: "Asia-Pacific Security Gateway Latency Spike",
-        severity: "critical",
-        status: "investigating",
+        id: "INC-9002",
+        title: "Security Gateway High CPU & Latency Spike",
+        severity: "High",
+        status: "Investigating",
         affectedDevices: ["sec-gateway-02.ap1"],
-        startTime: "2026-08-11 19:42:00",
-        description: "TLS handshake delays exceeding SLA threshold (200ms+)."
+        affected_devices: ["sec-gateway-02.ap1"],
+        startTime: "2026-08-16 19:42:00",
+        timestamp: "2026-08-16 19:42:00",
+        description: "SSL termination process memory leak driving CPU utilization above 94%."
       },
       {
-        id: "INC-8918",
-        title: "Memory Utilization High on US-East Dist Switch",
-        severity: "warning",
-        status: "monitoring",
+        id: "INC-9003",
+        title: "Distribution Switch Memory Pool Exhaustion",
+        severity: "Medium",
+        status: "Mitigated",
         affectedDevices: ["dist-switch-01.dc1"],
-        startTime: "2026-08-11 18:05:00",
-        description: "Switch memory pool at 88% due to large MAC address table broadcast burst."
+        affected_devices: ["dist-switch-01.dc1"],
+        startTime: "2026-08-16 18:05:00",
+        timestamp: "2026-08-16 18:05:00",
+        description: "MAC table overflow. Rate limiting enabled on untrusted ingress ports."
       },
       {
-        id: "INC-8915",
-        title: "Port Flapping on Access Switch US-West",
-        severity: "warning",
-        status: "monitoring",
+        id: "INC-9004",
+        title: "Access Switch Port CRC Error Threshold Exceeded",
+        severity: "Low",
+        status: "Detected",
         affectedDevices: ["access-sw-44.us2"],
-        startTime: "2026-08-11 16:30:00",
-        description: "Interface Eth1/24 link state toggled 14 times in 10 minutes."
+        affected_devices: ["access-sw-44.us2"],
+        startTime: "2026-08-16 16:30:00",
+        timestamp: "2026-08-16 16:30:00",
+        description: "Physical layer degradation detected on port Eth1/24 SFP interface."
       },
       {
-        id: "INC-8902",
-        title: "Primary Power Supply Degradation on Edge FW",
-        severity: "medium",
-        status: "resolved",
+        id: "INC-9005",
+        title: "Firewall Redundant PSU Voltage Anomaly",
+        severity: "Low",
+        status: "Resolved",
         affectedDevices: ["fw-cluster-main.dc1"],
-        startTime: "2026-08-11 11:20:00",
-        description: "PSU-1 input voltage anomaly cleared after failover to redundant feed."
+        affected_devices: ["fw-cluster-main.dc1"],
+        startTime: "2026-08-16 11:20:00",
+        timestamp: "2026-08-16 11:20:00",
+        description: "Primary feed voltage fluctuation normalized after ATS automatic failover."
       }
     ],
     alerts: [
@@ -108,7 +118,7 @@
     },
     getIncidents(filterSeverity = null) {
       if (!filterSeverity) return this.data.incidents;
-      return this.data.incidents.filter(i => i.severity === filterSeverity);
+      return this.data.incidents.filter(i => (i.severity || '').toLowerCase() === filterSeverity.toLowerCase());
     },
     getAlerts() {
       return this.data.alerts;

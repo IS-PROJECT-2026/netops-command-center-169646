@@ -466,9 +466,10 @@ html, body {
   font-family: var(--font-mono);
 }
 
-.badge-critical { background: var(--status-critical); color: #fff; }
-.badge-warning { background: var(--status-warning); color: #000; }
-.badge-info { background: var(--status-info-glow); color: var(--status-info); border: 1px solid var(--status-info); }
+.badge-critical, .badge-high { background: var(--status-critical); color: #fff; }
+.badge-warning, .badge-medium { background: var(--status-warning); color: #000; }
+.badge-info, .badge-low { background: var(--status-info-glow); color: var(--status-info); border: 1px solid var(--status-info); }
+.badge-healthy { background: var(--status-healthy-glow); color: var(--status-healthy); border: 1px solid var(--status-healthy); }
 
 .pulse-dot {
   width: 8px;
@@ -550,9 +551,10 @@ html, body {
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
-.incident-item.severity-critical { border-left-color: var(--status-critical); }
-.incident-item.severity-warning { border-left-color: var(--status-warning); }
-.incident-item.severity-medium { border-left-color: var(--status-info); }
+.incident-item.severity-critical, .incident-item.severity-high { border-left-color: var(--status-critical); }
+.incident-item.severity-warning, .incident-item.severity-medium { border-left-color: var(--status-warning); }
+.incident-item.severity-low, .incident-item.severity-info { border-left-color: var(--status-info); }
+.incident-item-empty { padding: var(--spacing-md); text-align: center; }
 
 .incident-header {
   display: flex;
