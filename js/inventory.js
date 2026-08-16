@@ -23,6 +23,8 @@
   let detailLatency;
   let detailUptime;
 
+  let currentSelectedDevice = null;
+
   /**
    * Render the device table based on search query and status filter
    */
@@ -166,6 +168,7 @@
    */
   function openDeviceDetails(device) {
     if (!detailPanel) return;
+    currentSelectedDevice = device;
 
     if (detailHostname) detailHostname.textContent = device.hostname;
     if (detailId) detailId.textContent = device.id;
@@ -193,6 +196,34 @@
     detailPanel.classList.remove('open');
     detailPanel.setAttribute('aria-hidden', 'true');
     if (panelOverlay) panelOverlay.classList.remove('active');
+  }
+
+  /**
+   * Execute quick diagnostic on currently selected device
+   */
+  function triggerQuickDiagnostic(toolName) {
+    if (!currentSelectedDevice) return;
+    const targetHost = currentSelectedDevice.hostname;
+
+    closeDeviceDetails();
+
+    if (window.NetOpsApp && typeof window.NetOpsApp.navigateTo === 'function') {
+      window.NetOpsApp.navigateTo('section-diagnostics', 'Network Diagnostics');
+    } else {
+      const diagLink = document.querySelector('.nav-link[data-target="section-diagnostics"]');
+      if (diagLink) diagLink.click();
+    }
+
+    setTimeout(() => {
+      const targetSelect = document.getElementById('diag-target-select');
+      if (targetSelect) {
+        targetSelect.value = targetHost;
+      }
+      const toolBtn = document.querySelector(`.btn-diag-tool[data-tool="${toolName}"]`);
+      if (toolBtn) {
+        toolBtn.click();
+      }
+    }, 100);
   }
 
   /**
@@ -245,6 +276,21 @@
       panelOverlay.addEventListener('click', closeDeviceDetails);
     }
 
+    // Quick diagnostic buttons in detail panel
+    if (detailPanel) {
+      const quickActionBtns = detailPanel.querySelectorAll('.action-buttons button');
+      quickActionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const text = btn.textContent.trim().toLowerCase();
+          if (text.includes('ping')) {
+            triggerQuickDiagnostic('Ping');
+          } else if (text.includes('traceroute')) {
+            triggerQuickDiagnostic('Traceroute');
+          }
+        });
+      });
+    }
+
     // ESC key closes slide-out panel
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && detailPanel && detailPanel.classList.contains('open')) {
@@ -256,7 +302,6 @@
     renderDeviceTable();
   }
 
-  // Bind to DOMContentLoaded or execute immediately if already loaded
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initInventoryModule);
   } else {
@@ -267,6 +312,7 @@
   window.NetOpsInventory = {
     render: renderDeviceTable,
     openDetails: openDeviceDetails,
-    closeDetails: closeDeviceDetails
+    closeDetails: closeDeviceDetails,
+    triggerQuickDiagnostic: triggerQuickDiagnostic
   };
 })();

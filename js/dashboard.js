@@ -36,7 +36,9 @@
         activeWarnings: 0,
         healthyCount: 0,
         warningCount: 0,
-        criticalCount: 0
+        criticalCount: 0,
+        uptime: "100%",
+        packetLoss: "0.00%"
       };
     }
 
@@ -63,16 +65,33 @@
 
     const percentOnline = ((healthyCount / totalDevices) * 100).toFixed(1) + '%';
     const avgLatency = (totalLatencyMs / totalDevices).toFixed(1) + ' ms';
+    const uptime = criticalCount > 0 ? "99.91%" : (warningCount > 0 ? "99.96%" : "99.99%");
+    const packetLoss = criticalCount > 0 ? "0.05%" : (warningCount > 0 ? "0.02%" : "0.00%");
 
-    return {
+    const metricsResult = {
       totalDevices,
       percentOnline,
       avgLatency,
       activeWarnings: warningCount,
       healthyCount,
       warningCount,
-      criticalCount
+      criticalCount,
+      uptime,
+      packetLoss
     };
+
+    // Update shared state metrics object
+    if (window.NetOpsState && window.NetOpsState.data && window.NetOpsState.data.metrics) {
+      window.NetOpsState.data.metrics.totalDevices = totalDevices;
+      window.NetOpsState.data.metrics.healthyDevices = healthyCount;
+      window.NetOpsState.data.metrics.warningDevices = warningCount;
+      window.NetOpsState.data.metrics.criticalDevices = criticalCount;
+      window.NetOpsState.data.metrics.avgLatency = avgLatency;
+      window.NetOpsState.data.metrics.uptime = uptime;
+      window.NetOpsState.data.metrics.packetLoss = packetLoss;
+    }
+
+    return metricsResult;
   }
 
   /**
@@ -97,15 +116,6 @@
     // Active Warnings Card
     const activeWarningsEl = document.getElementById('metric-active-warnings');
     if (activeWarningsEl) activeWarningsEl.textContent = metrics.activeWarnings;
-
-    // Update shared state metrics object as well
-    if (window.NetOpsState && window.NetOpsState.data) {
-      window.NetOpsState.data.metrics.totalDevices = metrics.totalDevices;
-      window.NetOpsState.data.metrics.healthyDevices = metrics.healthyCount;
-      window.NetOpsState.data.metrics.warningDevices = metrics.warningCount;
-      window.NetOpsState.data.metrics.criticalDevices = metrics.criticalCount;
-      window.NetOpsState.data.metrics.avgLatency = metrics.avgLatency;
-    }
   }
 
   /**
@@ -131,7 +141,7 @@
   }
 
   /**
-   * Push simulated network event every 15 seconds
+   * Push simulated network event periodically
    */
   function startSimulatedEventStream() {
     setInterval(() => {
@@ -213,6 +223,7 @@
   }
 
   window.NetOpsDashboard = {
+    render: renderMetricsUI,
     renderMetrics: renderMetricsUI,
     renderTicker: renderEventTicker,
     calculateMetrics: calculateMetrics
