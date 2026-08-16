@@ -6,17 +6,27 @@
  * Generic simulation engine function runDiagnostic
  * @param {string} toolName - Tool name (e.g. "Ping", "Traceroute", "DNS Lookup", "Port Scan", etc.)
  * @param {string} targetDevice - Target device IP or Hostname
- * @returns {Promise<Object>} Randomized result object with simulated latency and packet loss data
+ * @returns {Promise<Object>} Result object with simulated latency and packet loss data
  */
 async function runDiagnostic(toolName, targetDevice) {
-  const target = targetDevice || "10.0.1.1";
+  const target = targetDevice || "core-router-01.dc1";
   const tool = toolName || "Ping";
 
-  // Simulate 2-second loading state delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  // Simulate 1.5-second realistic probe delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
 
-  // Randomized success/failure generation (85% success rate)
-  const isSuccess = Math.random() > 0.15;
+  // Determine success based on target device status if known
+  let isSuccess = Math.random() > 0.15;
+  if (window.NetOpsState) {
+    const devices = window.NetOpsState.getDevices();
+    const match = devices.find(d => d.hostname === target || d.ip === target);
+    if (match) {
+      if (match.status === 'critical') isSuccess = Math.random() > 0.8;
+      else if (match.status === 'warning') isSuccess = Math.random() > 0.4;
+      else isSuccess = Math.random() > 0.05;
+    }
+  }
+
   const baseLatency = Math.floor(Math.random() * 25 + 5);
   const minLatency = Math.max(1, baseLatency - Math.floor(Math.random() * 5));
   const maxLatency = baseLatency + Math.floor(Math.random() * 30);
@@ -32,18 +42,18 @@ async function runDiagnostic(toolName, targetDevice) {
   if (toolLower.includes('ping')) {
     logs.push(`PING ${target} (${target}) 56(84) bytes of data.`);
     if (isSuccess) {
-      logs.push(`64 bytes from ${target}: icmp_seq=1 ttl=64 time=${minLatency} ms`);
-      logs.push(`64 bytes from ${target}: icmp_seq=2 ttl=64 time=${baseLatency} ms`);
-      logs.push(`64 bytes from ${target}: icmp_seq=3 ttl=64 time=${baseLatency + 2} ms`);
-      logs.push(`64 bytes from ${target}: icmp_seq=4 ttl=64 time=${maxLatency} ms`);
+      logs.push(`64 bytes from ${target}: icmp_seq=1 ttl=64 time=${minLatency}.12 ms`);
+      logs.push(`64 bytes from ${target}: icmp_seq=2 ttl=64 time=${baseLatency}.45 ms`);
+      logs.push(`64 bytes from ${target}: icmp_seq=3 ttl=64 time=${baseLatency + 2}.02 ms`);
+      logs.push(`64 bytes from ${target}: icmp_seq=4 ttl=64 time=${maxLatency}.89 ms`);
       logs.push(`--- ${target} ping statistics ---`);
       logs.push(`4 packets transmitted, 4 received, 0% packet loss, time 3004ms`);
       logs.push(`rtt min/avg/max/mdev = ${minLatency}.12/${baseLatency}.45/${maxLatency}.89/2.11 ms`);
     } else {
-      logs.push(`64 bytes from ${target}: icmp_seq=1 ttl=64 time=${baseLatency} ms`);
+      logs.push(`64 bytes from ${target}: icmp_seq=1 ttl=64 time=${baseLatency}.30 ms`);
       logs.push(`Request timeout for icmp_seq 2`);
       logs.push(`Request timeout for icmp_seq 3`);
-      logs.push(`64 bytes from ${target}: icmp_seq=4 ttl=64 time=${maxLatency} ms`);
+      logs.push(`64 bytes from ${target}: icmp_seq=4 ttl=64 time=${maxLatency}.50 ms`);
       logs.push(`--- ${target} ping statistics ---`);
       logs.push(`4 packets transmitted, 2 received, 50% packet loss, time 4010ms`);
     }
@@ -82,14 +92,14 @@ async function runDiagnostic(toolName, targetDevice) {
   } else if (toolLower.includes('port')) {
     logs.push(`Starting Nmap 7.94 ( https://nmap.org ) at ${timestamp}`);
     logs.push(`Nmap scan report for ${target}`);
-    logs.push(`Host is up (${baseLatency}s latency).`);
+    logs.push(`Host is up (${baseLatency}ms latency).`);
     logs.push(`PORT     STATE    SERVICE`);
     logs.push(`22/tcp   open     ssh`);
     logs.push(`80/tcp   open     http`);
     logs.push(`443/tcp  open     https`);
     logs.push(`161/udp  ${isSuccess ? 'open' : 'filtered'}  snmp`);
     logs.push(`179/tcp  ${isSuccess ? 'open' : 'closed'}    bgp`);
-    logs.push(`Nmap done: 1 IP address scanned in 2.00 seconds.`);
+    logs.push(`Nmap done: 1 IP address scanned in 1.50 seconds.`);
   } else {
     logs.push(`[${timestamp}] Initiating ${tool} test engine for target ${target}...`);
     logs.push(`Opening probe channel across control plane...`);
@@ -159,12 +169,12 @@ async function runDiagnostic(toolName, targetDevice) {
 
     if (statusBadge) {
       statusBadge.className = 'status-badge status-badge-running';
-      statusBadge.innerHTML = `<span class="diag-spinner"></span> RUNNING (2s)...`;
+      statusBadge.innerHTML = `<span class="pulse-dot"></span> RUNNING...`;
     }
 
     if (consoleOutput) {
-      consoleOutput.textContent = `[${new Date().toLocaleTimeString()}] Running ${toolName} diagnostic engine against ${target}...\n` +
-                                 `Simulating network round-trip probe (2s delay)...\n` +
+      consoleOutput.textContent = `[${new Date().toLocaleTimeString()}] Running ${toolName} diagnostic probe against ${target}...\n` +
+                                 `Simulating network round-trip probe...\n` +
                                  `Awaiting response payload...`;
     }
 
@@ -187,6 +197,17 @@ async function runDiagnostic(toolName, targetDevice) {
 
       appendHistoryRow(result);
 
+      // Save to storage
+      if (window.NetOpsStorage) {
+        window.NetOpsStorage.addHistoryEntry(result);
+      }
+
+      // Update RCA scoring in real-time
+      if (window.NetOpsRCA && typeof window.NetOpsRCA.render === 'function') {
+        const fullHistory = (window.NetOpsStorage && window.NetOpsStorage.loadHistory()) || [];
+        window.NetOpsRCA.render(fullHistory);
+      }
+
     } catch (err) {
       console.error("Diagnostic execution error:", err);
       if (consoleOutput) consoleOutput.textContent = `[ERROR] Execution failed: ${err.message}`;
@@ -200,10 +221,12 @@ async function runDiagnostic(toolName, targetDevice) {
     const tbody = document.getElementById('diag-history-tbody');
     if (!tbody) return;
 
+    const timePart = (result.timestamp || '').includes(' ') ? result.timestamp.split(' ')[1] : result.timestamp;
+
     const tr = document.createElement('tr');
     tr.className = result.success ? 'row-success' : 'row-failure';
     tr.innerHTML = `
-      <td><code class="code-tag">${result.timestamp.split(' ')[1]}</code></td>
+      <td><code class="code-tag">${timePart || 'N/A'}</code></td>
       <td><strong>${result.toolName}</strong></td>
       <td><code>${result.targetDevice}</code></td>
       <td><span class="status-badge ${result.success ? 'status-badge-resolved' : 'status-badge-detected'}">${result.status}</span></td>
@@ -250,4 +273,8 @@ async function runDiagnostic(toolName, targetDevice) {
   }
 
   window.runDiagnostic = runDiagnostic;
+  window.NetOpsDiagnostics = {
+    run: runDiagnostic,
+    handleRun: handleDiagnosticRun
+  };
 })();

@@ -7,52 +7,62 @@
   'use strict';
 
   /**
-   * Dummy diagnostic results dataset evaluated for RCA scoring
+   * Default diagnostic results dataset evaluated for RCA scoring
    */
   const defaultDiagnosticResults = [
     {
       id: "DIAG-101",
+      toolName: "ICMP Ping",
       tool: "ICMP Ping",
+      targetDevice: "edge-router-01.eu1",
       target: "edge-router-01.eu1",
       status: "FAILURE",
       latency: "185 ms",
-      packetLoss: 25,
+      packetLoss: "25%",
       errorDetails: "High packet drop on interface TenGigE0/0/1"
     },
     {
       id: "DIAG-102",
+      toolName: "BGP Route Check",
       tool: "BGP Route Check",
+      targetDevice: "edge-router-01.eu1",
       target: "edge-router-01.eu1",
       status: "FAILURE",
       latency: "190 ms",
-      packetLoss: 0,
+      packetLoss: "0%",
       errorDetails: "BGP Peer 194.12.0.4 state changed to FLAPPING"
     },
     {
       id: "DIAG-103",
+      toolName: "Traceroute",
       tool: "Traceroute",
+      targetDevice: "edge-router-01.eu1",
       target: "edge-router-01.eu1",
       status: "FAILURE",
       latency: "210 ms",
-      packetLoss: 50,
+      packetLoss: "50%",
       errorDetails: "Hop 4 timeout: Transit link saturation on EU circuit"
     },
     {
       id: "DIAG-104",
+      toolName: "DNS Lookup",
       tool: "DNS Lookup",
+      targetDevice: "dns-auth-01.global",
       target: "dns-auth-01.global",
       status: "SUCCESS",
       latency: "5 ms",
-      packetLoss: 0,
+      packetLoss: "0%",
       errorDetails: null
     },
     {
       id: "DIAG-105",
+      toolName: "Port Scanner",
       tool: "Port Scanner",
+      targetDevice: "sec-gateway-02.ap1",
       target: "sec-gateway-02.ap1",
       status: "WARNING",
       latency: "240 ms",
-      packetLoss: 0,
+      packetLoss: "0%",
       errorDetails: "SNMP service response delayed under heavy TLS load"
     }
   ];
@@ -69,8 +79,12 @@
       return { score: 0, tier: "Low Confidence", levelClass: "score-low", summary: "No diagnostic probes evaluated." };
     }
 
-    const failedProbes = diagnosticData.filter(d => d.status === 'FAILURE' || (d.packetLoss && d.packetLoss > 10));
-    const warningProbes = diagnosticData.filter(d => d.status === 'WARNING');
+    const failedProbes = diagnosticData.filter(d => {
+      const isFail = (d.status || '').toUpperCase() === 'FAILURE';
+      const lossVal = parseInt(d.packetLoss || '0', 10);
+      return isFail || lossVal > 10;
+    });
+
     const failureRatio = failedProbes.length / totalProbes;
 
     // Base score baseline when anomalies exist
@@ -80,8 +94,8 @@
     score += Math.round(failureRatio * 30);
 
     // 2. High Anomaly Severity Weight (up to +20%)
-    const hasBgpFlap = diagnosticData.some(d => (d.errorDetails || '').toLowerCase().includes('bgp'));
-    const hasHighPacketLoss = diagnosticData.some(d => d.packetLoss >= 20);
+    const hasBgpFlap = diagnosticData.some(d => (d.errorDetails || d.output || '').toLowerCase().includes('bgp'));
+    const hasHighPacketLoss = diagnosticData.some(d => parseInt(d.packetLoss || '0', 10) >= 20);
     const hasHighLatency = diagnosticData.some(d => parseInt(d.latency || '0', 10) > 150);
 
     if (hasBgpFlap) score += 8;
@@ -91,8 +105,9 @@
     // 3. Target Device Clustering Weight (up to +10%)
     const deviceFailures = {};
     failedProbes.forEach(p => {
-      if (p.target) {
-        deviceFailures[p.target] = (deviceFailures[p.target] || 0) + 1;
+      const tgt = p.targetDevice || p.target;
+      if (tgt) {
+        deviceFailures[tgt] = (deviceFailures[tgt] || 0) + 1;
       }
     });
     const maxTargetFailures = Math.max(0, ...Object.values(deviceFailures));
@@ -120,7 +135,7 @@
       levelClass: levelClass,
       totalProbes: totalProbes,
       failedProbesCount: failedProbes.length,
-      warningProbesCount: warningProbes.length
+      warningProbesCount: diagnosticData.filter(d => (d.status || '').toUpperCase() === 'WARNING').length
     };
   }
 
@@ -135,8 +150,10 @@
 
     const targetCounts = {};
     diagnosticData.forEach(d => {
-      if (d.status === 'FAILURE' || (d.packetLoss && d.packetLoss > 0)) {
-        targetCounts[d.target] = (targetCounts[d.target] || 0) + 1;
+      const tgt = d.targetDevice || d.target;
+      const isFail = (d.status || '').toUpperCase() === 'FAILURE' || parseInt(d.packetLoss || '0', 10) > 0;
+      if (tgt && isFail) {
+        targetCounts[tgt] = (targetCounts[tgt] || 0) + 1;
       }
     });
 
@@ -158,7 +175,7 @@
       confidenceScore: scoreInfo.score,
       confidenceTier: scoreInfo.tier,
       levelClass: scoreInfo.levelClass,
-      summary: `Automated diagnostic correlation identified severe packet loss (25%) and BGP flapping on ${primaryDevice} as the primary root cause. Inter-region transit circuit shows hop-level queue drops.`,
+      summary: `Automated diagnostic correlation identified severe packet loss and BGP flapping on ${primaryDevice} as the primary root cause. Inter-region transit circuit shows hop-level queue drops.`,
       recommendedAction: `1. Re-seat or failover BGP session on ${primaryDevice}.\n2. Shift transatlantic transit traffic to secondary path.\n3. Clear interface buffer queues and re-run ICMP diagnostic suite.`,
       evaluatedProbes: scoreInfo.totalProbes,
       failedProbes: scoreInfo.failedProbesCount,
@@ -236,7 +253,8 @@
     const reEvalBtn = document.getElementById('btn-re-evaluate-rca');
     if (reEvalBtn) {
       reEvalBtn.addEventListener('click', () => {
-        renderRCAUI();
+        const historyData = (window.NetOpsStorage && window.NetOpsStorage.loadHistory()) || [];
+        renderRCAUI(historyData);
       });
     }
   }
